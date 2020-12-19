@@ -192,4 +192,10 @@ public class BalancedTree<K extends Key,V extends Value> {
         }
         return y;
     }
+
+    public static void main(String... args)
+    {
+        BalancedTree a = new BalancedTree();
+        System.out.println("dawdaw");
+    }
 }
