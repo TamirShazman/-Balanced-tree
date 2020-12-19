@@ -38,10 +38,8 @@ public class BalancedTree<K extends Key,V extends Value> {
     }
     /*Data type Internal Node of the tree*/
     private class InternalNode<K extends Key,V extends Value> extends Node{
-        private V sumOfChildren;
         private InternalNode(K key, V value) {
             super(key,value);
-            this.sumOfChildren =  null;
         }
     }
     /*Data type Leaf of the tree*/
@@ -89,6 +87,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             setChildren(s,x,w,null);
             this.root = s;
         }
+        numOfLeaf++;
     }
 
     /**
@@ -100,12 +99,12 @@ public class BalancedTree<K extends Key,V extends Value> {
     private void updateNode(InternalNode<K,V> nodeX){
         Node x = (Node)nodeX;
         x.numOfChildren = (x.lChild.numOfChildren + 1) + (x.mChild.numOfChildren + 1);
-        nodeX.sumOfChildren = (V)x.lChild.value.createCopy();
-        nodeX.sumOfChildren.addValue(x.mChild.value);
+        x.value = (V)x.lChild.value.createCopy();
+        x.value.addValue(x.mChild.value);
         x.key = x.mChild.key;
         if (x.rChild != null){
             x.numOfChildren =+ (x.rChild.numOfChildren + 1);
-            nodeX.sumOfChildren.addValue(x.rChild.value);
+            x.value.addValue(x.rChild.value);
             x.key = x.rChild.key;
         }
     }
@@ -117,15 +116,14 @@ public class BalancedTree<K extends Key,V extends Value> {
      */
     private void initializedInsert(Leaf<K,V> newLeaf){
         ((Node)newLeaf).parent = this.root;
-        this.root.sumOfChildren = (V)((Node)newLeaf).value.createCopy();
+        ((Node)this.root).value = (V)((Node)newLeaf).value.createCopy();
         ((Node)this.root).key = ((Node)newLeaf).key;
         if (((Node)this.root).lChild == null){
             ((Node)this.root).lChild = newLeaf;
-            ((Node)this.root).numOfChildren = 1;
             this.numOfLeaf = 1;
         }
         else {
-            this.root.sumOfChildren.addValue(((Node)this.root).lChild.value);
+            ((Node)this.root).value.addValue(((Node)this.root).lChild.value);
             if (((Node)newLeaf).key.compareTo(((Node)this.root).lChild.key) > 0){
                 ((Node)this.root).mChild = newLeaf;
             }
@@ -136,6 +134,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             }
             this.numOfLeaf = 2;
         }
+        ((Node)this.root).numOfChildren++;
     }
 
     /**
@@ -191,11 +190,5 @@ public class BalancedTree<K extends Key,V extends Value> {
             setChildren(y,r,z,null);
         }
         return y;
-    }
-
-    public static void main(String... args)
-    {
-        BalancedTree a = new BalancedTree();
-        System.out.println("dawdaw");
     }
 }
