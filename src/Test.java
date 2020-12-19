@@ -250,25 +250,25 @@ public class Test
                 case RANK -> test.printRank(key1, T.rank(key1));
                 case DELETE -> T.delete(key1);
                 case INSERT ->
-                {
-                    T.insert(myKeysArray[currentIndexToInsert], myValuesArray[currentIndexToInsert]);
-                    currentIndexToInsert += 1;
-                }
+                        {
+                            T.insert(myKeysArray[currentIndexToInsert], myValuesArray[currentIndexToInsert]);
+                            currentIndexToInsert += 1;
+                        }
                 case SEARCH -> test.printSearch(key1, (MyValue) T.search(key1));
                 case SELECT -> test.printSelect(randomIndex, (MyKey) T.select(randomIndex));
                 case SUM_VALUES_IN_INTERVAL ->
-                {
-                    key1 = myKeysArray[random.nextInt(myKeysArray.length)];
-                    key2 = myKeysArray[random.nextInt(myKeysArray.length)];
-                    if (key1.compareTo(key2) <= 0)
-                    {
-                        test.printSumInInterval(key1, key2, (MyValue) T.sumValuesInInterval(key1, key2));
-                    }
-                    else
-                    {
-                        test.printSumInInterval(key2, key1, (MyValue) T.sumValuesInInterval(key2, key1));
-                    }
-                }
+                        {
+                            key1 = myKeysArray[random.nextInt(myKeysArray.length)];
+                            key2 = myKeysArray[random.nextInt(myKeysArray.length)];
+                            if (key1.compareTo(key2) <= 0)
+                            {
+                                test.printSumInInterval(key1, key2, (MyValue) T.sumValuesInInterval(key1, key2));
+                            }
+                            else
+                            {
+                                test.printSumInInterval(key2, key1, (MyValue) T.sumValuesInInterval(key2, key1));
+                            }
+                        }
             }
         }
     }
