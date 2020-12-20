@@ -237,4 +237,28 @@ public class BalancedTree<K extends Key,V extends Value> {
         }
         return z;
     }
+
+    public Value search(Key key) {
+        //key is larger than largest key in data structure
+        if(key.compareTo(this.root.key) > 0) {
+            return null;
+        }
+        return auxSearch(this.root, key);
+    }
+
+    private Value auxSearch(Node currNode, Key key) {
+        if(currNode.lChild == null) {
+            if(currNode.key.compareTo(key) == 0)
+                return currNode.value.createCopy();
+            else
+                return null;
+        }
+
+        if(key.compareTo(currNode.lChild.key) <= 0)
+            return auxSearch(currNode.lChild, key);
+        else if(key.compareTo(currNode.mChild.key) <= 0)
+            return auxSearch(currNode.mChild, key);
+        else //because we checked at root if key is inside data table there will always be right child
+            return auxSearch(currNode.rChild, key);
+    }
 }
