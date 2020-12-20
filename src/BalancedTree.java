@@ -188,4 +188,39 @@ public class BalancedTree<K extends Key,V extends Value> {
         }
         return y;
     }
+
+    public Value search(Key key, Integer Rank) {
+        Node currNode = this.root;
+
+
+        //key is larger than largest key in data structure
+        if(key.compareTo(currNode.key) > 0) {
+            return null;
+        }
+
+        //check if the root is the key
+        if(key.compareTo(currNode.key) == 0) {
+            return currNode.value.createCopy();
+        }
+
+
+
+        while(currNode.lChild != null) {
+            if(currNode.lChild.key.compareTo(key) >= 0)
+                currNode = currNode.lChild;
+            else if(currNode.mChild.key.compareTo(key) >= 0) {
+                currNode = currNode.mChild;
+                rank =+ currNode.lChild.numOfDesc;
+            }
+            else {//because the key is smaller than the rightmost leaf's key there will never be a case where the rChild is null
+                currNode = currNode.rChild;
+                rank =+ currNode.lChild.numOfDesc + currNode.mChild.numOfDesc;
+            }
+        }
+
+
+
+
+
+    }
 }
