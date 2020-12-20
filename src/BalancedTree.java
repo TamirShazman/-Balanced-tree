@@ -271,13 +271,21 @@ public class BalancedTree<K extends Key,V extends Value> {
         if(index <= currNode.lChild.numOfDesc)
             return auxSelect(currNode.lChild, index);
         else {
-            index = -currNode.lChild.numOfDesc; //subtract from index the num of descendents in the left child sub-tree
+            index =- currNode.lChild.numOfDesc; //subtract from index the num of descendents in the left child sub-tree
             if (index <= currNode.mChild.numOfDesc)
                 return auxSelect(currNode.mChild, index);
             else {
-                index = -currNode.mChild.numOfDesc; //subtract from index the num of descendents in the mid child sub-tree
+                index =- currNode.mChild.numOfDesc; //subtract from index the num of descendents in the mid child sub-tree
                 return auxSelect(currNode.rChild, index);
             }
         }
     }
+
+    public Value sumValuesInInterval (Key key1, Key key2) {
+        //check if key1 is smaller/equal to key2
+        if(key1.compareTo(key2) > 0)
+            return null;
+        //check if key2 is smaller then the smallest value in the data structure
+        Key smallestKey = select(1);
+        if(key2.compareTo(smallestKey) < 0)
 }
