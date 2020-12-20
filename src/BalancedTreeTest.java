@@ -111,15 +111,16 @@ class BalancedTreeTest {
     public static void main(String... args) {
         BalancedTree T = new BalancedTree();
 
-        MyKey[] myKeysArray = new MyKey[1000];
-        MyValue[] myValueArray = new MyValue[1000];
+        MyKey[] myKeysArray = new MyKey[1001];
+        MyValue[] myValueArray = new MyValue[1001];
 
         for(int i =0; i<1000;i++)
         {
             myKeysArray[i] = new MyKey("b",i);
             myValueArray[i] = new MyValue(i);
             T.insert(myKeysArray[i],myValueArray[i]);
-            System.out.println(i);
         }
+        myKeysArray[1000] = new MyKey("c", 1001);
+        System.out.println( T.search(myKeysArray[1000]));
     }
 }
