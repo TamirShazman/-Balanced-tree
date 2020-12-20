@@ -1,5 +1,5 @@
 import java.util.Random;
-
+/*
 interface Constants
 {
     int SEED = 32154;
@@ -273,3 +273,4 @@ public class Test
         }
     }
 }
+*/
