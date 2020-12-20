@@ -23,12 +23,12 @@ public class BalancedTree<K extends Key,V extends Value> {
         private Node<K,V> rChild;
         private Node<K,V> mChild;
         private Node<K,V> lChild;
-        private int numOfDesc;
+        private int numOfLeaf;
         private int numOfChild;
         private Node(K key, V value){
             this.key = key;
             this.value = value;
-            this.numOfDesc = 0;
+            this.numOfLeaf = 0;
             this.numOfChild = 0;
             this.parent = null;
             this.rChild = null;
@@ -46,6 +46,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      */
     public void insert(K newKey,V newValue){
         Node<K,V> z = new Node<K,V>((K)newKey.createCopy(), (V)newValue.createCopy());
+        z.numOfLeaf = 1; //Leaf has 1 leaf "under" him.
         /*Extreme case, tree has 1 leaf or none (this case occur when the tree just been Initialized). */
         if (this.numOfLeaf < 2){
            initializedInsert(z);
@@ -82,17 +83,17 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param x : Node
      * {@code updateNode} Method  update the key of the maximum key,number of descended, number of
      *  children and
-     *  sum of  values in nodeX subtree.
+     *  sum of  values in x subtree.
      *  Note : (only) {@code nodeX.rChild} can be null.
      */
     private void updateNode(Node<K,V> x){
-        x.numOfDesc = (x.lChild.numOfDesc + 1) + (x.mChild.numOfDesc + 1);
+        x.numOfLeaf = x.lChild.numOfLeaf + x.mChild.numOfLeaf;
         x.numOfChild = 2;
         x.value = (V)x.lChild.value.createCopy();
         x.value.addValue(x.mChild.value);
         x.key = x.mChild.key;
         if (x.rChild != null){
-            x.numOfDesc =+ (x.rChild.numOfDesc + 1);
+            x.numOfLeaf =+ x.rChild.numOfLeaf ;
             x.value.addValue(x.rChild.value);
             x.key = x.rChild.key;
             x.numOfChild++;
@@ -106,6 +107,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      */
     private void initializedInsert(Node<K,V> newLeaf){
         newLeaf.parent = this.root;
+        newLeaf.numOfLeaf = 1;
         this.root.value = (V)newLeaf.value.createCopy();
         this.root.key = newLeaf.key;
         if (this.root.lChild == null){
@@ -118,13 +120,13 @@ public class BalancedTree<K extends Key,V extends Value> {
                 this.root.mChild = newLeaf;
             }
             else {
-                this.root.mChild = ((Node)this.root).lChild;
+                this.root.mChild = this.root.lChild;
                 this.root.lChild = newLeaf;
                 this.root.key = this.root.mChild.key;
             }
             this.numOfLeaf = 2;
         }
-        this.root.numOfDesc++;
+        this.root.numOfLeaf++;
         this.root.numOfChild++;
     }
 
@@ -187,18 +189,41 @@ public class BalancedTree<K extends Key,V extends Value> {
         return y;
     }
 
-    /*TODO: wait until Dovid will finished search method*/
     /**
      * @param key : the key to delete
      * {@code:delete} method will delete the Node with the desire key if
      * the tree has a Node with the same key, if not, nothing will happens.
      */
-    public void delete(K key){}
+    public void delete(K key){
+        Node<K,V> x = auxSearch(this.root, key);
+        /*If the current key is not in the tree*/
+        if (x == null)
+            return;
+        Node <K,V> y = x.parent;
+        if (x == y.lChild)
+            setChildren(y,y.mChild,y.rChild,null);
+        else if (x == y.mChild)
+            setChildren(y,y.lChild,y.rChild,null);
+        else
+            setChildren(y,y.lChild,y.mChild,null);
+        while (y != null){
+            if (y.mChild == null){
+                if (y != this.root)
+                    y = borrowOrMerge(y);
+                else {
+                    this.root = y.lChild;
+                    y.lChild.parent = null;
+                }
+            }
+            else
+                y = y.parent;
+        }
+    }
 
     /**
      * @param y : Node
      * {@code:borrow} method borrow a Node child from a sibling x of y or merge x and y.
-     * return a pointer to the parent of y (and x).
+     * return a reference to the parent of y (and x).
      */
     private Node<K,V> borrowOrMerge(Node y){
         Node z = y.parent;
@@ -243,13 +268,16 @@ public class BalancedTree<K extends Key,V extends Value> {
         if(key.compareTo(this.root.key) > 0) {
             return null;
         }
-        return auxSearch(this.root, key);
+        Node<K,V> x =  auxSearch(this.root, key);
+        if (x == null)
+            return null;
+        return x.value.createCopy();
     }
 
-    private Value auxSearch(Node currNode, Key key) {
+    private Node<K,V> auxSearch(Node currNode, Key key) {
         if(currNode.lChild == null) {
             if(currNode.key.compareTo(key) == 0)
-                return currNode.value.createCopy();
+                return currNode;
             else
                 return null;
         }
