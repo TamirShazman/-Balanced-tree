@@ -253,4 +253,31 @@ public class BalancedTree<K extends Key,V extends Value> {
             return auxRank(currNode.rChild, key, currRank);
         }
     }
+
+    public Key select(int index) {
+        //check if the index is larger than the total amount of leaves or smaller then 1
+        if ((index > this.root.numOfDesc) || index < 1)
+            return null;
+
+        return auxSelect(this.root, index);
+    }
+
+    private Key auxSelect(Node currNode, int index) {
+        //if arrived at leaf return key
+        if(currNode.lChild == null)
+            return currNode.key.createCopy();
+
+        //if at internal node, check to which child to continue
+        if(index <= currNode.lChild.numOfDesc)
+            return auxSelect(currNode.lChild, index);
+        else {
+            index = -currNode.lChild.numOfDesc; //subtract from index the num of descendents in the left child sub-tree
+            if (index <= currNode.mChild.numOfDesc)
+                return auxSelect(currNode.mChild, index);
+            else {
+                index = -currNode.mChild.numOfDesc; //subtract from index the num of descendents in the mid child sub-tree
+                return auxSelect(currNode.rChild, index);
+            }
+        }
+    }
 }
