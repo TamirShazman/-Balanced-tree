@@ -31,9 +31,6 @@ public class BalancedTree<K extends Key,V extends Value> {
             this.value = value;
             this.numOfChildren = 0;
             this.parent = null;
-            this.lChild = null;
-            this.mChild = null;
-            this.rChild = null;
         }
     }
     /*Data type Internal Node of the tree*/
