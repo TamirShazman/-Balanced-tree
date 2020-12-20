@@ -195,6 +195,7 @@ public class BalancedTree<K extends Key,V extends Value> {
     }
 
     private Value auxSearch(Node currNode, Key key) {
+        //if we are the leaf, return the leaf's value or null if the key is not in the data structure
         if(currNode.lChild == null) {
             if(currNode.key.compareTo(key) == 0)
                 return currNode.value.createCopy();
@@ -202,11 +203,54 @@ public class BalancedTree<K extends Key,V extends Value> {
                 return null;
         }
 
+        //navigate to appropriate internal node
         if(key.compareTo(currNode.lChild.key) <= 0)
             return auxSearch(currNode.lChild, key);
         else if(key.compareTo(currNode.mChild.key) <= 0)
             return auxSearch(currNode.mChild, key);
         else //because we checked at root if key is inside data table there will always be right child
             return auxSearch(currNode.rChild, key);
+    }
+}
+
+    public int Rank(Key key) {
+        int rank = 0;
+
+        //check if the key is larger than all the keys in the data structure
+        if(key.compareTo(this.root.key) > 0)
+            return 0;
+
+        //search data structure for key and linear ordering
+        //the initial rank is 0, no sentinels
+        return auxRank(this.root, key, 0);
+    }
+
+    private int auxRank(Node currNode, Key key, int currRank) {
+        //if at leaf
+        if(currNode.lChild == null){
+            if(currNode.key.compareTo(key) == 0) {
+                if (currNode.equals(currNode.parent.lChild))
+                    return currRank + 1;
+                else if (currNode.equals(currNode.parent.mChild))
+                    return currRank + 2;
+                else
+                    return currRank + 3;
+            }
+            //if the key is not in the data structure
+            else
+                return 0;
+        }
+        //navigate to appropriate node and count the number of leaves to the left of next node
+        if(key.compareTo(currNode.lChild.key) <= 0) {
+            return auxRank(currNode.lChild, key, currRank);
+        }
+        else if(key.compareTo(currNode.mChild.key) <= 0) {
+            currRank =+ currNode.lChild.numOfDesc;
+            return auxRank(currNode.mChild, key, currRank);
+        }
+        else {//because we checked at root if key is inside data table there will always be right child
+            currRank =+ currNode.lChild.numOfDesc + currNode.mChild.numOfDesc;
+            return auxRank(currNode.rChild, key, currRank);
+        }
     }
 }
