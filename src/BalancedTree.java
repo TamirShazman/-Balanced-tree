@@ -84,19 +84,23 @@ public class BalancedTree<K extends Key,V extends Value> {
      * {@code updateNode} Method  update the key of the maximum key,number of descended, number of
      *  children and
      *  sum of  values in x subtree.
-     *  Note : (only) {@code nodeX.rChild} can be null.
+     *  Note : (only) {@code:x.mChild,x.rChild} can be null.
      */
     private void updateNode(Node<K,V> x){
-        x.numOfLeaf = x.lChild.numOfLeaf + x.mChild.numOfLeaf;
-        x.numOfChild = 2;
+        x.numOfLeaf = x.lChild.numOfLeaf;
+        x.numOfChild = 1;
         x.value = (V)x.lChild.value.createCopy();
-        x.value.addValue(x.mChild.value);
-        x.key = x.mChild.key;
+        if (x.mChild != null) {
+            x.value.addValue(x.mChild.value);
+            x.key = x.mChild.key;
+            x.numOfChild = 2;
+            x.numOfLeaf += x.lChild.numOfLeaf;
+        }
         if (x.rChild != null){
-            x.numOfLeaf =+ x.rChild.numOfLeaf ;
+            x.numOfLeaf += x.rChild.numOfLeaf ;
             x.value.addValue(x.rChild.value);
             x.key = x.rChild.key;
-            x.numOfChild++;
+            x.numOfChild = 3;
         }
     }
 
@@ -136,13 +140,14 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param m : middle Node in subtree.
      * @param r : right Node in subtree.
      * {@code:setChildren} method set l, m and r to be the left, middle and right children respectively, of x.
-     * Note : r is the only note that can be null.
+     * Note : r and m are the only note that can be null.
      */
     private void setChildren(Node<K,V> x,Node<K,V> l,Node<K,V> m,Node<K,V> r){
         x.lChild = l;
         x.mChild = m;
         x.rChild = r;
         x.lChild.parent = x;
+        if (x.mChild != null)
         x.mChild.parent = x;
         if (x.rChild != null)
         x.rChild.parent = x;
@@ -196,6 +201,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      */
     public void delete(K key){
         Node<K,V> x = auxSearch(this.root, key);
+        this.numOfLeaf--;
         /*If the current key is not in the tree*/
         if (x == null)
             return;
@@ -213,10 +219,13 @@ public class BalancedTree<K extends Key,V extends Value> {
                 else {
                     this.root = y.lChild;
                     y.lChild.parent = null;
+                    return;
                 }
             }
-            else
+            else {
+                updateNode(y);
                 y = y.parent;
+            }
         }
     }
 
