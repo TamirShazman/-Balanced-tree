@@ -93,21 +93,6 @@ class MyValue implements Value
 }
 
 class BalancedTreeTest {
-
-    @Test
-    void insert() {
-        BalancedTree T = new BalancedTree();
-
-        MyKey[] myKeysArray = new MyKey[10];
-        MyValue[] myValueArray = new MyValue[10];
-
-        for(int i =0; i<10;i++)
-        {
-            myKeysArray[i] = new MyKey("b",i);
-            myValueArray[i] = new MyValue(i);
-            T.insert(myKeysArray[i],myValueArray[i]);
-        }
-    }
     public static void main(String... args) {
         BalancedTree T = new BalancedTree();
 
