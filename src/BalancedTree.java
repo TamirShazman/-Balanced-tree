@@ -5,7 +5,7 @@
 
 public class BalancedTree<K extends Key,V extends Value> {
 
-    /*Root of the tree, Must be InternalNode*/
+    /*Root of the tree is a Node*/
     private Node<K,V> root ;
     /*Number OF Leaf in the tree, helps in insertaion method*/
     private int numOfLeaf;
@@ -187,5 +187,54 @@ public class BalancedTree<K extends Key,V extends Value> {
         return y;
     }
 
+    /*TODO: wait until Dovid will finished search method*/
+    /**
+     * @param key : the key to delete
+     * {@code:delete} method will delete the Node with the desire key if
+     * the tree has a Node with the same key, if not, nothing will happens.
+     */
+    public void delete(K key){}
 
+    /**
+     * @param y : Node
+     * {@code:borrow} method borrow a Node child from a sibling x of y or merge x and y.
+     * return a pointer to the parent of y (and x).
+     */
+    private Node<K,V> borrowOrMerge(Node y){
+        Node z = y.parent;
+        if (y == z.lChild){
+            Node x = z.mChild;
+            if (x.rChild != null){
+                setChildren(y,y.lChild,x.lChild,null);
+                setChildren(x,x.mChild,x.rChild,null);
+            }
+            else {
+                setChildren(x,y.lChild,x.lChild,x.mChild);
+                setChildren(z,x,z.rChild,null);
+            }
+            return z;
+        }
+        if (y == z.mChild){
+            Node x = z.lChild;
+            if (x.rChild != null){
+                setChildren(y,x.rChild,y.lChild,null);
+                setChildren(x, x.lChild, x.mChild, null);
+            }
+            else {
+                setChildren(x,x.lChild,x.mChild,null);
+                setChildren(z,x,z.rChild,null);
+            }
+            return z;
+        }
+        Node x = z.mChild;
+        if (x.rChild != null){
+            setChildren(y,x.rChild,y.lChild,null);
+            setChildren(x,x.lChild,x.mChild,null);
+        }
+        else {
+            setChildren(x,x.lChild,x.mChild,y.lChild);
+            setChildren(z,z.lChild,x,null);
+        }
+        return z;
+    }
 }
