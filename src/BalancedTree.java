@@ -355,9 +355,27 @@ public class BalancedTree<K extends Key,V extends Value> {
         //check if key1 is smaller/equal to key2
         if (key1.compareTo(key2) > 0)
             return null;
+        //check if the range begins after the largest key
+        if(key1.compareTo(this.root.key) > 0)
+            return null;
+        //check if the range ends before the smallest key
+        Node successor2 = findSuccessor(this.root, key2);
+        if(key2.compareTo(successor2.key) < 0)
+            return null;
+        Node successor1 = findSuccessor(this.root, key1);
     }
 
-    private Key findNextHighestKey(int number) {
-        return null;
+    private Node<K, V> findSuccessor(Node currNode, Key key) {
+        if (currNode.lChild == null) {
+                return currNode;
+        }
+
+        //navigate to appropriate internal node
+        if (key.compareTo(currNode.lChild.key) < 0)
+            return auxSearch(currNode.lChild, key);
+        else if (key.compareTo(currNode.mChild.key) < 0)
+            return auxSearch(currNode.mChild, key);
+        else //because we checked at root if key is inside data table there will always be right child
+            return auxSearch(currNode.rChild, key);
     }
 }
