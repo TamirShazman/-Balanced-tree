@@ -8,11 +8,11 @@ public class BalancedTree<K extends Key,V extends Value> {
     /*Root of the tree is a Node*/
     private Node<K,V> root ;
     /*Number OF Leaf in the tree, helps in insertaion method*/
-    private int numOfLeaf;
+    private int TreeNumOfLeaf;
     /*Constructor for tree, default key and value is null */
     public BalancedTree(){
      this.root = new Node<K,V>(null,null);
-     this.numOfLeaf = 0;
+     this.TreeNumOfLeaf = 0;
     }
 
     /*Helper Node dataType for {@code BalanceTRee}, represents Node for the tree* */
@@ -48,7 +48,7 @@ public class BalancedTree<K extends Key,V extends Value> {
         Node<K,V> z = new Node<K,V>((K)newKey.createCopy(), (V)newValue.createCopy());
         z.numOfLeaf = 1; //Leaf has 1 leaf "under" him.
         /*Extreme case, tree has 1 leaf or none (this case occur when the tree just been Initialized). */
-        if (this.numOfLeaf < 2){
+        if (this.TreeNumOfLeaf < 2){
            initializedInsert(z);
            return;
         }
@@ -76,7 +76,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             setChildren(s,x,w,null);
             this.root = s;
         }
-        numOfLeaf++;
+        TreeNumOfLeaf++;
     }
 
     /**
@@ -94,7 +94,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             x.value.addValue(x.mChild.value);
             x.key = x.mChild.key;
             x.numOfChild = 2;
-            x.numOfLeaf += x.lChild.numOfLeaf;
+            x.numOfLeaf += x.mChild.numOfLeaf;
         }
         if (x.rChild != null){
             x.numOfLeaf += x.rChild.numOfLeaf ;
@@ -111,12 +111,11 @@ public class BalancedTree<K extends Key,V extends Value> {
      */
     private void initializedInsert(Node<K,V> newLeaf){
         newLeaf.parent = this.root;
-        newLeaf.numOfLeaf = 1;
         this.root.value = (V)newLeaf.value.createCopy();
         this.root.key = newLeaf.key;
         if (this.root.lChild == null){
             this.root.lChild = newLeaf;
-            this.numOfLeaf = 1;
+            this.TreeNumOfLeaf = 1;
         }
         else {
             this.root.value.addValue(this.root.lChild.value);
@@ -128,10 +127,46 @@ public class BalancedTree<K extends Key,V extends Value> {
                 this.root.lChild = newLeaf;
                 this.root.key = this.root.mChild.key;
             }
-            this.numOfLeaf = 2;
+            this.TreeNumOfLeaf = 2;
         }
         this.root.numOfLeaf++;
         this.root.numOfChild++;
+    }
+
+    /**
+     * @param key : key to delete (delete the Node with the same key).
+     * {@code:finalDeletion} method is responsible for deleting Node in extreme cases (when {@code:TreeNumOfLeaf}
+     * is below 3). If there is'nt any Node with the key the method does nothing.
+     */
+    private void finalDeletion(Key key){
+        if (TreeNumOfLeaf == 1 && this.root.lChild.key.compareTo(key) == 0){
+            this.root.lChild = null;
+            this.root.numOfChild = 0;
+            this.root.numOfLeaf = 0;
+            TreeNumOfLeaf--;
+            return;
+        }
+        if (TreeNumOfLeaf == 2){
+            if (this.root.lChild.key.compareTo(key) == 0)
+            {
+                this.root.lChild = this.root.mChild;
+                this.root.mChild = null;
+                this.root.value = (V)this.root.lChild.value.createCopy();
+                this.root.numOfLeaf = 1;
+                this.root.numOfChild = 1;
+                TreeNumOfLeaf--;
+                return;
+            }
+            if (this.root.mChild.key.compareTo(key) == 0){
+                this.root.mChild = null;
+                this.root.key = this.root.lChild.key;
+                this.root.value = (V)this.root.lChild.value.createCopy();
+                this.root.numOfLeaf = 1;
+                this.root.numOfChild = 1;
+                TreeNumOfLeaf--;
+                return;
+            }
+        }
     }
 
     /**
@@ -200,11 +235,21 @@ public class BalancedTree<K extends Key,V extends Value> {
      * the tree has a Node with the same key, if not, nothing will happens.
      */
     public void delete(K key){
+        if (TreeNumOfLeaf == 0) //There are'nt any leaf to delete.
+            return;
+
+        /*finalDeletion take care of the Extreme case, Tree is'nt 2-3 Tree anymore */
+        if (this.TreeNumOfLeaf < 3){
+            finalDeletion(key);
+            return;
+        }
+
         Node<K,V> x = auxSearch(this.root, key);
-        this.numOfLeaf--;
         /*If the current key is not in the tree*/
         if (x == null)
             return;
+
+        this.TreeNumOfLeaf--;
         Node <K,V> y = x.parent;
         if (x == y.lChild)
             setChildren(y,y.mChild,y.rChild,null);
@@ -255,7 +300,7 @@ public class BalancedTree<K extends Key,V extends Value> {
                 setChildren(x, x.lChild, x.mChild, null);
             }
             else {
-                setChildren(x,x.lChild,x.mChild,null);
+                setChildren(x,x.lChild,x.mChild,y.lChild);
                 setChildren(z,x,z.rChild,null);
             }
             return z;
