@@ -413,40 +413,109 @@ public class BalancedTree<K extends Key,V extends Value> {
     }
 
     public Value sumValuesInInterval(Key key1, Key key2) {
+        boolean upperBoundisKey = false;
         //check if key1 is smaller/equal to key2
         if (key1.compareTo(key2) > 0)
             return null;
+
         //check if the range ends before the smallest key
+        Key smallestKey = select(1);
+        if(key2.compareTo(smallestKey) < 0)
+            return null;
         Node successor1 = findSuccessor(key1);
-        Node successor2 = findSuccessor(key2);
         //check if the range begins after the largest key
         if(successor1 == null)
             return null;
-
-        Value sumOfSmaller1 = getSmallerThanSum(successor1.key.createCopy(), successor1.value.createCopy(), true);
-        Value sumOfSmaller2 = getSmallerThanSum(successor2.key.createCopy(), successor2.value.createCopy(), false);
-
+        //check if the upper bound is smaller than the key the succeeds key1. If so, the range is empty
+        if(key2.compareTo(successor1.key) > 0)
 
 
-    }
 
-    private Value getSmallerThanSum(Key key, Value startValue, boolean lowerBound){
-        Value sum = auxSmallerSum(this.root, key, startValue, lowerBound);
+
+
 
     }
-    private Value auxSmallerSum(Node<K, V> currNode, Key key, Value currValue, boolean lowerBound){
+
+    private void ascendingAddition(Node<K,V> currNode, Node<K,V> prevNode, Value sum, Key upperBound) {
+        //check all of the subtrees to the right of the node that we ascended from, if they are in range
+        if(currNode.mChild.key.compareTo(prevNode.key) > 0){ //if we ascended from the left child
+            if(currNode.mChild.key.compareTo(upperBound) <= 0) {
+                sum.addValue(currNode.mChild.value);
+                if(currNode.rChild != null) {
+                    if(currNode.rChild.key.compareTo(upperBound) <= 0)
+                        sum.addValue(currNode.rChild.value);
+                    else
+                        descendingAddition(currNode.rChild, sum, upperBound);
+
+                }
+
+            }
+            else
+                descendingAddition(currNode.mChild, sum, upperBound);
+        }
+
+        if((currNode.rChild != null) && (currNode.rChild != prevNode)){
+            if(currNode.rChild.key.compareTo(key2))
+        }
+    }
+
+    private void descendingAddition(Node<K,V> currNode, Value sum, Key upperBound) {
+        //if arrived at leaf, check if in range. If so add value. If not, stop descent
+        if(currNode.lChild == null){
+            if(currNode.key.compareTo(upperBound) <= 0)
+                sum.addValue(currNode.value);
+            else
+                return;
+        }
+
+        //from left to right, check if the children subtrees are in range, if so add their values to sum
+        if(currNode.lChild.key.compareTo(upperBound) <= 0) {
+            sum.addValue(currNode.lChild.value);
+            if(currNode.mChild.key.compareTo(upperBound) <= 0) {
+                sum.addValue(currNode.mChild.value);
+                if (currNode.rChild != null) {
+                    if (currNode.rChild.key.compareTo(upperBound) <= 0)
+                        sum.addValue(currNode.rChild.value);
+                    else //descend into right child's subtree
+                        descendingAddition(currNode.rChild, sum, upperBound);
+                }
+            }
+            else //descend into middle child's subtree
+                descendingAddition(currNode.mChild, sum, upperBound);
+        }
+        else //descend into left child's subtree
+            descendingAddition(currNode.lChild, sum, upperBound);
+    }
+    /*
+    private Value getSmallerThanSum(Key key, Value startValue, boolean addSuccessor){
+        Value sum = auxSmallerSum(this.root, key, startValue, addSuccessor);
+
+    }
+    private Value auxSmallerSum(Node<K, V> currNode, Key key, Value currValue, boolean addSuccessor){
+        //arrived at successor
         if(currNode.lChild == null) {
-            //if the
-            if(currNode.key.compareTo(key) == 0) {
-                currValue.addValue(currNode.value); //does this work? the method is void??
-                return currValue;
+            //if the upper bound equals its successor than its successor's value is added
+            if(addSuccessor){
+
+
             }
             else
                 return currValue;
         }
 
+        //navigate to appropriate node and sum the values to the left
+        if (key.compareTo(currNode.lChild.key) <= 0) {
+            return auxSmallerSum(currNode.lChild, key, currValue, addSuccessor);
+        } else if (key.compareTo(currNode.mChild.key) <= 0) {
+            currValue.addValue(currNode.lChild.value);
+            return auxSmallerSum(currNode.mChild, key, currValue, addSuccessor);
+        } else {//because we checked at root if key is inside data table there will always be right child
+            currValue.addValue(currNode.lChild.value);
+            currValue.addValue(currNode.mChild.value);
+            return auxSmallerSum(currNode.rChild, key, currValue, addSuccessor);
+        }
+    }*/
 
-    }
     private Node<K, V> findSuccessor(Key key){
         if(key.compareTo(this.root.key) > 0)
             return null;
@@ -459,13 +528,11 @@ public class BalancedTree<K extends Key,V extends Value> {
         }
 
         //navigate to appropriate internal node
-        if (key.compareTo(currNode.lChild.key) < 0)
+        if (key.compareTo(currNode.lChild.key) <= 0)
             return auxSearch(currNode.lChild, key);
-        else if (key.compareTo(currNode.mChild.key) < 0)
+        else if (key.compareTo(currNode.mChild.key) <= 0)
             return auxSearch(currNode.mChild, key);
         else //because we checked at root if key is inside data table there will always be right child
             return auxSearch(currNode.rChild, key);
     }
-
-
 }
