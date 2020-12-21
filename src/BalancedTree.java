@@ -355,17 +355,44 @@ public class BalancedTree<K extends Key,V extends Value> {
         //check if key1 is smaller/equal to key2
         if (key1.compareTo(key2) > 0)
             return null;
-        //check if the range begins after the largest key
-        if(key1.compareTo(this.root.key) > 0)
-            return null;
         //check if the range ends before the smallest key
-        Node successor2 = findSuccessor(this.root, key2);
-        if(key2.compareTo(successor2.key) < 0)
+        Node successor1 = findSuccessor(key1);
+        Node successor2 = findSuccessor(key2);
+        //check if the range begins after the largest key
+        if(successor1 == null)
             return null;
-        Node successor1 = findSuccessor(this.root, key1);
+
+        Value sumOfSmaller1 = getSmallerThanSum(successor1.key.createCopy(), successor1.value.createCopy(), true);
+        Value sumOfSmaller2 = getSmallerThanSum(successor2.key.createCopy(), successor2.value.createCopy(), false);
+
+
+
     }
 
-    private Node<K, V> findSuccessor(Node currNode, Key key) {
+    private Value getSmallerThanSum(Key key, Value startValue, boolean lowerBound){
+        Value sum = auxSmallerSum(this.root, key, startValue, lowerBound);
+
+    }
+    private Value auxSmallerSum(Node<K, V> currNode, Key key, Value currValue, boolean lowerBound){
+        if(currNode.lChild == null) {
+            //if the
+            if(currNode.key.compareTo(key) == 0) {
+                currValue.addValue(currNode.value); //does this work? the method is void??
+                return currValue;
+            }
+            else
+                return currValue;
+        }
+
+
+    }
+    private Node<K, V> findSuccessor(Key key){
+        if(key.compareTo(this.root.key) > 0)
+            return null;
+        else
+            return auxFindSuccessor(this.root, key);
+    }
+    private Node<K, V> auxFindSuccessor(Node currNode, Key key) {
         if (currNode.lChild == null) {
                 return currNode;
         }
