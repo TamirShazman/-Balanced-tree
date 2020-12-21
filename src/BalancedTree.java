@@ -413,7 +413,6 @@ public class BalancedTree<K extends Key,V extends Value> {
     }
 
     public Value sumValuesInInterval(Key key1, Key key2) {
-        boolean upperBoundisKey = false;
         //check if key1 is smaller/equal to key2
         if (key1.compareTo(key2) > 0)
             return null;
@@ -428,6 +427,11 @@ public class BalancedTree<K extends Key,V extends Value> {
             return null;
         //check if the upper bound is smaller than the key the succeeds key1. If so, the range is empty
         if(key2.compareTo(successor1.key) > 0)
+            return null;
+
+        Value sum = successor1.value.createCopy();
+        ascendingAddition(successor1.parent, successor1, sum, key2);
+        return sum;
 
 
 
@@ -444,19 +448,25 @@ public class BalancedTree<K extends Key,V extends Value> {
                 if(currNode.rChild != null) {
                     if(currNode.rChild.key.compareTo(upperBound) <= 0)
                         sum.addValue(currNode.rChild.value);
-                    else
+                    else {
                         descendingAddition(currNode.rChild, sum, upperBound);
-
+                        return;
+                    }
                 }
-
             }
-            else
+            else {
                 descendingAddition(currNode.mChild, sum, upperBound);
+                return;
+            }
         }
-
-        if((currNode.rChild != null) && (currNode.rChild != prevNode)){
-            if(currNode.rChild.key.compareTo(key2))
+        //ascended from middle child and there is a right child
+        else if((currNode.rChild != null) && (currNode.rChild.key.compareTo(prevNode.key) > 0)){
+            if(currNode.rChild.key.compareTo(upperBound) <= 0)
+                sum.addValue(currNode.mChild.value);
+            else
+                return;
         }
+        ascendingAddition(currNode.parent, currNode, sum, upperBound);
     }
 
     private void descendingAddition(Node<K,V> currNode, Value sum, Key upperBound) {
