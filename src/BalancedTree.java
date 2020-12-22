@@ -416,6 +416,9 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @return key of node found at index or null no node is at index
      */
     public Key select(int index) {
+        // if the tree has one node and the index requested is one
+        if((index == 1) && (this.root.numOfLeaf == 1))
+            return this.root.key;
         //check if the index is larger than the total amount of leaves or smaller then 1
         if ((index > this.root.numOfLeaf) || index < 1)
             return null;
@@ -487,12 +490,15 @@ public class BalancedTree<K extends Key,V extends Value> {
 
     private void ascendingAddition(Node<K,V> currNode, Node<K,V> prevNode, Value sum, Key upperBound) {
         //check all of the subtrees to the right of the node that we ascended from, if they are in range
-        if(currNode.lChild.key.compareTo(prevNode.key) == 0){ //if we ascended from the left child
+        if(currNode.lChild == prevNode){//if we ascended from the left child
+            //System.out.println("ascend from left");
             if(currNode.mChild.key.compareTo(upperBound) <= 0) {
                 sum.addValue(currNode.mChild.value);
                 if(currNode.rChild != null) {
-                    if(currNode.rChild.key.compareTo(upperBound) <= 0)
+                    if(currNode.rChild.key.compareTo(upperBound) <= 0) {
                         sum.addValue(currNode.rChild.value);
+                    }
+
                     else {
                         descendingAddition(currNode.rChild, sum, upperBound);
                         return;
@@ -505,15 +511,16 @@ public class BalancedTree<K extends Key,V extends Value> {
             }
         }
         //ascended from middle child and there is a right child
-        else if((currNode.rChild != null) && (currNode.mChild.key.compareTo(prevNode.key) == 0)){
-            if(currNode.rChild.key.compareTo(upperBound) <= 0)
+        else if((currNode.rChild != null) && (currNode.mChild == prevNode)){
+            //System.out.println("ascend from middle and right child");
+            if(currNode.rChild.key.compareTo(upperBound) <= 0) {
                 sum.addValue(currNode.mChild.value);
+            }
             else
                 return;
         }
         //if the upper bound is larger then every key in the tree then stop ascending
         if(currNode.parent == null) {
-            System.out.println("made it to the top");
             return;
         }
 
@@ -548,35 +555,6 @@ public class BalancedTree<K extends Key,V extends Value> {
         else //descend into left child's subtree
             descendingAddition(currNode.lChild, sum, upperBound);
     }
-    /*
-    private Value getSmallerThanSum(Key key, Value startValue, boolean addSuccessor){
-        Value sum = auxSmallerSum(this.root, key, startValue, addSuccessor);
-
-    }
-    private Value auxSmallerSum(Node<K, V> currNode, Key key, Value currValue, boolean addSuccessor){
-        //arrived at successor
-        if(currNode.lChild == null) {
-            //if the upper bound equals its successor than its successor's value is added
-            if(addSuccessor){
-
-
-            }
-            else
-                return currValue;
-        }
-
-        //navigate to appropriate node and sum the values to the left
-        if (key.compareTo(currNode.lChild.key) <= 0) {
-            return auxSmallerSum(currNode.lChild, key, currValue, addSuccessor);
-        } else if (key.compareTo(currNode.mChild.key) <= 0) {
-            currValue.addValue(currNode.lChild.value);
-            return auxSmallerSum(currNode.mChild, key, currValue, addSuccessor);
-        } else {//because we checked at root if key is inside data table there will always be right child
-            currValue.addValue(currNode.lChild.value);
-            currValue.addValue(currNode.mChild.value);
-            return auxSmallerSum(currNode.rChild, key, currValue, addSuccessor);
-        }
-    }*/
 
     private Node<K, V> findSuccessor(Key key){
         if(key.compareTo(this.root.key) > 0)
@@ -597,4 +575,86 @@ public class BalancedTree<K extends Key,V extends Value> {
         else //because we checked at root if key is inside data table there will always be right child
             return auxFindSuccessor(currNode.rChild, key);
     }
+
+
+    /*Todo : delete*/
+    public void treeCheck(){
+        for(int i = 1; i + 1 < root.numOfLeaf; i++) {
+            Key key1 = select(i);
+            Key key2 = select(i + 1);
+            if(key1.compareTo(key2) >= 0)
+                System.out.println("Failure at: " + i + " key " + key1.toString() + " is bigger than " + key2.toString());
+        }
+        System.out.println("Dank, bro");
+    }
 }
+/*
+private void ascendingAddition(Node<K,V> currNode, Node<K,V> prevNode, Value sum, Key upperBound) {
+        //check all of the subtrees to the right of the node that we ascended from, if they are in range
+        if(currNode.lChild.key.compareTo(prevNode.key) == 0){//if we ascended from the left child
+            //System.out.println("ascend from left");
+            if(currNode.mChild.key.compareTo(upperBound) <= 0) {
+                sum.addValue(currNode.mChild.value);
+                if(currNode.rChild != null) {
+                    if(currNode.rChild.key.compareTo(upperBound) <= 0) {
+                        sum.addValue(currNode.rChild.value);
+                    }
+
+                    else {
+                        descendingAddition(currNode.rChild, sum, upperBound);
+                        return;
+                    }
+                }
+            }
+            else {
+                descendingAddition(currNode.mChild, sum, upperBound);
+                return;
+            }
+        }
+        //ascended from middle child and there is a right child
+        else if((currNode.rChild != null) && (currNode.mChild.key.compareTo(prevNode.key) == 0)){
+            //System.out.println("ascend from middle and right child");
+            if(currNode.rChild.key.compareTo(upperBound) <= 0) {
+                sum.addValue(currNode.mChild.value);
+            }
+            else
+                return;
+        }
+        //if the upper bound is larger then every key in the tree then stop ascending
+        if(currNode.parent == null) {
+System.out.println("made it to the top");
+            return;
+        }
+
+        else
+            ascendingAddition(currNode.parent, currNode, sum, upperBound);
+    }
+
+    private void descendingAddition(Node<K,V> currNode, Value sum, Key upperBound) {
+        //if arrived at leaf, check if in range. If so add value. If not, stop descent
+        if(currNode.lChild == null){
+            if(currNode.key.compareTo(upperBound) <= 0)
+                sum.addValue(currNode.value);
+            else
+                return;
+        }
+
+        //from left to right, check if the children subtrees are in range, if so add their values to sum
+        if(currNode.lChild.key.compareTo(upperBound) <= 0) {
+            sum.addValue(currNode.lChild.value);
+            if(currNode.mChild.key.compareTo(upperBound) <= 0) {
+                sum.addValue(currNode.mChild.value);
+                if (currNode.rChild != null) {
+                    if (currNode.rChild.key.compareTo(upperBound) <= 0)
+                        sum.addValue(currNode.rChild.value);
+                    else //descend into right child's subtree
+                        descendingAddition(currNode.rChild, sum, upperBound);
+                }
+            }
+            else //descend into middle child's subtree
+                descendingAddition(currNode.mChild, sum, upperBound);
+        }
+        else //descend into left child's subtree
+            descendingAddition(currNode.lChild, sum, upperBound);
+    }
+ */
