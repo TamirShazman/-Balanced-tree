@@ -1,7 +1,7 @@
 /*
-* The {@code BalancedTree} represents an 2-3 Tree with some additional feature
-* to it to be able of handling the Runtime demands.
-* */
+ * The {@code BalancedTree} represents an 2-3 Tree with some additional feature
+ * to it to be able of handling the Runtime demands.
+ * */
 
 public class BalancedTree<K extends Key,V extends Value> {
 
@@ -11,8 +11,8 @@ public class BalancedTree<K extends Key,V extends Value> {
     private int TreeNumOfLeaf;
     /*Constructor for tree, default key and value is null */
     public BalancedTree(){
-     this.root = new Node<K,V>(null,null);
-     this.TreeNumOfLeaf = 0;
+        this.root = new Node<K,V>(null,null);
+        this.TreeNumOfLeaf = 0;
     }
 
     /*Helper Node dataType for {@code BalanceTRee}, represents Node for the tree* */
@@ -49,8 +49,8 @@ public class BalancedTree<K extends Key,V extends Value> {
         z.numOfLeaf = 1; //Leaf has 1 leaf "under" him.
         /*Extreme case, tree has 1 leaf or none (this case occur when the tree just been Initialized). */
         if (this.TreeNumOfLeaf < 2){
-           initializedInsert(z);
-           return;
+            initializedInsert(z);
+            return;
         }
         /*If the method got to here, the tree is already Initialized (has at least 2 leaf*/
         Node y = this.root;
@@ -183,9 +183,9 @@ public class BalancedTree<K extends Key,V extends Value> {
         x.rChild = r;
         x.lChild.parent = x;
         if (x.mChild != null)
-        x.mChild.parent = x;
+            x.mChild.parent = x;
         if (x.rChild != null)
-        x.rChild.parent = x;
+            x.rChild.parent = x;
         updateNode(x);
     }
 
@@ -317,6 +317,11 @@ public class BalancedTree<K extends Key,V extends Value> {
         return z;
     }
 
+    /**
+     * If the key exists in the tree, finds the value of node with the given key
+     * @param key
+     * @return value of node with key or null if the key does not exist in tree
+     */
     public Value search(Key key) {
         //key is larger than largest key in data structure
         if(key.compareTo(this.root.key) > 0) {
@@ -328,6 +333,14 @@ public class BalancedTree<K extends Key,V extends Value> {
         return x.value.createCopy();
     }
 
+    /**
+     * Determines which child's subtree holds the key (if it exists) and moves to that child
+     * When arrives at leaf, checks if leaf is the key. If so, returns value. If not, the key is not in tree
+     * and returns null
+     * @param currNode
+     * @param key
+     * @return value of node with key or null if the key does not exist in tree
+     */
     private Node<K,V> auxSearch(Node currNode, Key key) {
         if(currNode.lChild == null) {
             if(currNode.key.compareTo(key) == 0)
@@ -345,29 +358,40 @@ public class BalancedTree<K extends Key,V extends Value> {
             return auxSearch(currNode.rChild, key);
     }
 
-
-    public int Rank(Key key) {
-        int rank = 0;
-
+    /**
+     * Finds the statistic order of node with given key, if the key is found in the tree
+     * @param key
+     * @return integral representing placement of node in linear ordering of all nodes
+     */
+    public int rank(Key key) {
         //check if the key is larger than all the keys in the data structure
         if (key.compareTo(this.root.key) > 0)
             return 0;
 
         //search data structure for key and linear ordering
-        //the initial rank is 0, no sentinels
-        return auxRank(this.root, key, 0);
+        return auxRank(this.root, key, 1);
     }
 
+    /**
+     * Given a node and tree, determines which child's subtree holds key (if exists).
+     * and keeps track of the number of children "to the left" of the given key.
+     * @param currNode
+     * @param key
+     * @param currRank
+     * @return integral representing placement of node in linear ordering of all nodes
+     */
     private int auxRank(Node currNode, Key key, int currRank) {
         //if at leaf
         if (currNode.lChild == null) {
             if (currNode.key.compareTo(key) == 0) {
-                if (currNode.equals(currNode.parent.lChild))
+                return currRank;
+                /*
+                if (currNode == currNode.parent.lChild)
                     return currRank + 1;
-                else if (currNode.equals(currNode.parent.mChild))
+                else if (currNode == currNode.parent.mChild)
                     return currRank + 2;
                 else
-                    return currRank + 3;
+                    return currRank + 3;*/
             }
             //if the key is not in the data structure
             else
@@ -377,14 +401,20 @@ public class BalancedTree<K extends Key,V extends Value> {
         if (key.compareTo(currNode.lChild.key) <= 0) {
             return auxRank(currNode.lChild, key, currRank);
         } else if (key.compareTo(currNode.mChild.key) <= 0) {
-            currRank =+ currNode.lChild.numOfLeaf;
+            currRank += currNode.lChild.numOfLeaf;
             return auxRank(currNode.mChild, key, currRank);
         } else {//because we checked at root if key is inside data table there will always be right child
-            currRank =+ currNode.lChild.numOfLeaf + currNode.mChild.numOfLeaf;
+            currRank += currNode.lChild.numOfLeaf + currNode.mChild.numOfLeaf;
             return auxRank(currNode.rChild, key, currRank);
         }
     }
 
+    /**
+     * Given a number representing placement in linear ordering of node (index), returns the key of the node
+     * which is found at the given placement.
+     * @param index
+     * @return key of node found at index or null no node is at index
+     */
     public Key select(int index) {
         //check if the index is larger than the total amount of leaves or smaller then 1
         if ((index > this.root.numOfLeaf) || index < 1)
@@ -393,6 +423,12 @@ public class BalancedTree<K extends Key,V extends Value> {
         return auxSelect(this.root, index);
     }
 
+    /**
+     * Given a node and index, determines which child's subtree will contain the node at the index.
+     * @param currNode
+     * @param index
+     * @return key of node at index
+     */
     private Key auxSelect(Node currNode, int index) {
         //if arrived at leaf return key
         if (currNode.lChild == null)
@@ -402,47 +438,56 @@ public class BalancedTree<K extends Key,V extends Value> {
         if (index <= currNode.lChild.numOfLeaf)
             return auxSelect(currNode.lChild, index);
         else {
-            index =- currNode.lChild.numOfLeaf; //subtract from index the num of descendents in the left child sub-tree
+            index -= currNode.lChild.numOfLeaf; //subtract from index the num of descendents in the left child sub-tree
             if (index <= currNode.mChild.numOfLeaf)
                 return auxSelect(currNode.mChild, index);
             else {
-                index =- currNode.mChild.numOfLeaf; //subtract from index the num of descendents in the mid child sub-tree
+                index -= currNode.mChild.numOfLeaf; //subtract from index the num of descendents in the mid child sub-tree
                 return auxSelect(currNode.rChild, index);
             }
         }
     }
 
+    /**
+     * Given two keys, finds sum of values belonging to nodes whose keys are found in the interval [key1, key2]
+     * @param key1
+     * @param key2
+     * @return value representing sum or null if no keys are found in that interval
+     */
     public Value sumValuesInInterval(Key key1, Key key2) {
         //check if key1 is smaller/equal to key2
         if (key1.compareTo(key2) > 0)
             return null;
 
-        //check if the range ends before the smallest key
         Key smallestKey = select(1);
+        //if the tree is empty
+        if(smallestKey == null)
+            return null;
+        //check if the range ends before the smallest key
         if(key2.compareTo(smallestKey) < 0)
             return null;
         Node successor1 = findSuccessor(key1);
         //check if the range begins after the largest key
         if(successor1 == null)
             return null;
+
         //check if the upper bound is smaller than the key the succeeds key1. If so, the range is empty
-        if(key2.compareTo(successor1.key) > 0)
+        if(key2.compareTo(successor1.key) < 0)
             return null;
 
         Value sum = successor1.value.createCopy();
-        ascendingAddition(successor1.parent, successor1, sum, key2);
-        return sum;
 
-
-
-
-
-
+        if (root.numOfChild == 1) //if the tree only has one node
+            return sum;
+        else { //if the tree has at least two
+            ascendingAddition(successor1.parent, successor1, sum, key2);
+            return sum;
+        }
     }
 
     private void ascendingAddition(Node<K,V> currNode, Node<K,V> prevNode, Value sum, Key upperBound) {
         //check all of the subtrees to the right of the node that we ascended from, if they are in range
-        if(currNode.mChild.key.compareTo(prevNode.key) > 0){ //if we ascended from the left child
+        if(currNode.lChild.key.compareTo(prevNode.key) == 0){ //if we ascended from the left child
             if(currNode.mChild.key.compareTo(upperBound) <= 0) {
                 sum.addValue(currNode.mChild.value);
                 if(currNode.rChild != null) {
@@ -460,13 +505,20 @@ public class BalancedTree<K extends Key,V extends Value> {
             }
         }
         //ascended from middle child and there is a right child
-        else if((currNode.rChild != null) && (currNode.rChild.key.compareTo(prevNode.key) > 0)){
+        else if((currNode.rChild != null) && (currNode.mChild.key.compareTo(prevNode.key) == 0)){
             if(currNode.rChild.key.compareTo(upperBound) <= 0)
                 sum.addValue(currNode.mChild.value);
             else
                 return;
         }
-        ascendingAddition(currNode.parent, currNode, sum, upperBound);
+        //if the upper bound is larger then every key in the tree then stop ascending
+        if(currNode.parent == null) {
+            System.out.println("made it to the top");
+            return;
+        }
+
+        else
+            ascendingAddition(currNode.parent, currNode, sum, upperBound);
     }
 
     private void descendingAddition(Node<K,V> currNode, Value sum, Key upperBound) {
@@ -534,15 +586,15 @@ public class BalancedTree<K extends Key,V extends Value> {
     }
     private Node<K, V> auxFindSuccessor(Node currNode, Key key) {
         if (currNode.lChild == null) {
-                return currNode;
+            return currNode;
         }
 
         //navigate to appropriate internal node
         if (key.compareTo(currNode.lChild.key) <= 0)
-            return auxSearch(currNode.lChild, key);
+            return auxFindSuccessor(currNode.lChild, key);
         else if (key.compareTo(currNode.mChild.key) <= 0)
-            return auxSearch(currNode.mChild, key);
+            return auxFindSuccessor(currNode.mChild, key);
         else //because we checked at root if key is inside data table there will always be right child
-            return auxSearch(currNode.rChild, key);
+            return auxFindSuccessor(currNode.rChild, key);
     }
 }

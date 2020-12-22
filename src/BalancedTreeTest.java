@@ -127,15 +127,15 @@ public class BalancedTreeTest
                 + "," + key2.toString() + "] is: ");
         System.out.println(result);
     }
-    /*
+
     private void executeSimpleTest(BalancedTree T, MyKey key1, MyKey key2, int index)
     {
-        printRank(key1,T.rank(key1));
+        printRank(key1, T.rank(key1));
         printSearch(key1,(MyValue) T.search(key1));
         printSelect(index,(MyKey) T.select(index));
         printSumInInterval(key1, key2, (MyValue) T.sumValuesInInterval(key1,key2));
     }
-    */
+
     private void executeSmallTest()
     {
         BalancedTree T = new BalancedTree();
@@ -168,7 +168,7 @@ public class BalancedTreeTest
         MyKey key2 = myKeysArray[1];
         MyValue value = myValueArray[0];
         value.setValue(50);
-    /*
+
         executeSimpleTest(T,key1,key2,1);
 
         T.insert(key1,value);
@@ -181,7 +181,6 @@ public class BalancedTreeTest
         key1.setKey("b",1);
         T.delete(key1);
         executeSimpleTest(T,key1,key2,1);
-     */
     }
 
     private String generateRandomString(Random random)
@@ -231,7 +230,7 @@ public class BalancedTreeTest
 
         key1 = myKeysArray[random.nextInt(myKeysArray.length)];
         key2 = myKeysArray[random.nextInt(myKeysArray.length)];
-        /*
+
         if (key1.compareTo(key2) < 0)
         {
             test.printSumInInterval(key2,key1,(MyValue) T.sumValuesInInterval(key2,key1));
