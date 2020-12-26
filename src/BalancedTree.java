@@ -575,14 +575,14 @@ public class BalancedTree<K extends Key,V extends Value> {
         }
     }
 
-    private Node<K,V> findSuccessor(Key key) {
+    private Node<K,V> findSuccessor(K key) {
         if (key.compareTo(this.root.key) > 0)
             return null;
         else
             return auxFindSuccessor(this.root, key);
     }
 
-    private Node<K,V> auxFindSuccessor(Node currNode, Key key) {
+    private Node<K,V> auxFindSuccessor(Node<K,V> currNode, K key) {
         if (currNode.lChild == null) {
             return currNode;
         }
