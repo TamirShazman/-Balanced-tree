@@ -1,6 +1,4 @@
 /**
- * @param <K> - class that implement the Key interface.
- * @param <V> - class that implement the Value interface.
  * The {@code:BalancedTree} represents an 2-3 Tree with some additional feature
  * to it to be able of handling the Runtime demands.
  * The Balanced Tree has 6 public function:
@@ -12,31 +10,31 @@
  * 6 - {@code:sumValuesInInterval} return the sum of a given interval.
  *  */
 
-public class BalancedTree<K extends Key,V extends Value> {
+public class BalancedTree {
 
     /**Root of the tree is a Node*/
-    private Node<K, V> root;
+    private Node root;
     /*Number OF Leaf in the tree, helps in insertaion method*/
     private int TreeNumOfLeaf;
 
     /**Constructor for tree, default key and value is null*/
     public BalancedTree() {
-        this.root = new Node<K,V>(null, null);
+        this.root = new Node(null, null);
         this.TreeNumOfLeaf = 0;
     }
 
     /**Helper Node dataType for {@code:BalanceTRee}, represents Node for the tree*/
-    private class Node<K extends Key, V extends Value> {
-        private K key;
-        private V value;
-        private Node<K, V> parent;
-        private Node<K, V> rChild;
-        private Node<K, V> mChild;
-        private Node<K, V> lChild;
+    private class Node {
+        private Key key;
+        private Value value;
+        private Node parent;
+        private Node rChild;
+        private Node mChild;
+        private Node lChild;
         private int numOfLeaf;
         private int numOfChild;
 
-        private Node(K key, V value) {
+        private Node(Key key, Value value) {
             this.key = key;
             this.value = value;
             this.numOfLeaf = 0;
@@ -55,8 +53,8 @@ public class BalancedTree<K extends Key,V extends Value> {
      *                 time complexity (n is the number of elements store in the current tree).
      *                 Note : insert method assume that all key are unique.
      */
-    public void insert(K newKey, V newValue) {
-        Node<K,V> z = new Node<K,V>((K) newKey.createCopy(), (V) newValue.createCopy());
+    public void insert(Key newKey, Value newValue) {
+        Node z = new Node(newKey.createCopy(), newValue.createCopy());
         z.numOfLeaf = 1; //Leaf has 1 leaf "under" him.
         /*Extreme case, tree has 1 leaf or none (this case occur when the tree just been Initialized). */
         if (this.TreeNumOfLeaf < 2) {
@@ -64,7 +62,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             return;
         }
         /*If the method got to here, the tree is already Initialized (has at least 2 leaf*/
-        Node<K,V> y = this.root;
+        Node y = this.root;
         while (y.numOfChild != 0) {
             if (z.key.compareTo(y.lChild.key) < 0)
                 y = y.lChild;
@@ -83,7 +81,7 @@ public class BalancedTree<K extends Key,V extends Value> {
                 updateNode(x);
         }
         if (w != null) {
-            Node<K,V> s = new Node<K, V>(null, null);
+            Node s = new Node(null, null);
             setChildren(s, x, w, null);
             this.root = s;
         }
@@ -95,12 +93,12 @@ public class BalancedTree<K extends Key,V extends Value> {
      *          {@code updateNode} Method  update the key of the maximum key,number of descended, number of
      *          children and
      *          sum of  values in x subtree.
-     *          Note : (only) {@code:x.mChild,x.rChild} can be null.
+     *          Note : (only) {@code:x.mChild;x.rChild} can be null.
      */
-    private void updateNode(Node<K, V> x) {
+    private void updateNode(Node x) {
         x.numOfLeaf = x.lChild.numOfLeaf;
         x.numOfChild = 1;
-        x.value = (V) x.lChild.value.createCopy();
+        x.value = x.lChild.value.createCopy();
         if (x.mChild != null) {
             x.value.addValue(x.mChild.value);
             x.key = x.mChild.key;
@@ -120,9 +118,9 @@ public class BalancedTree<K extends Key,V extends Value> {
      *                {@code:initializedInsert} method is responsible for insert a new leaf
      *                in the extreme case (number of leafs is less then two).
      */
-    private void initializedInsert(Node<K, V> newLeaf) {
+    private void initializedInsert(Node newLeaf) {
         newLeaf.parent = this.root;
-        this.root.value = (V) newLeaf.value.createCopy();
+        this.root.value = newLeaf.value.createCopy();
         this.root.key = newLeaf.key;
         if (this.root.lChild == null) {
             this.root.lChild = newLeaf;
@@ -159,7 +157,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             if (this.root.lChild.key.compareTo(key) == 0) {
                 this.root.lChild = this.root.mChild;
                 this.root.mChild = null;
-                this.root.value = (V) this.root.lChild.value.createCopy();
+                this.root.value = this.root.lChild.value.createCopy();
                 this.root.numOfLeaf = 1;
                 this.root.numOfChild = 1;
                 TreeNumOfLeaf--;
@@ -168,11 +166,10 @@ public class BalancedTree<K extends Key,V extends Value> {
             if (this.root.mChild.key.compareTo(key) == 0) {
                 this.root.mChild = null;
                 this.root.key = this.root.lChild.key;
-                this.root.value = (V) this.root.lChild.value.createCopy();
+                this.root.value = this.root.lChild.value.createCopy();
                 this.root.numOfLeaf = 1;
                 this.root.numOfChild = 1;
                 TreeNumOfLeaf--;
-                return;
             }
         }
     }
@@ -185,7 +182,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      *          {@code:setChildren} method set l, m and r to be the left, middle and right children respectively, of x.
      *          Note : r and m are the only note that can be null.
      */
-    private void setChildren(Node<K, V> x, Node<K, V> l, Node<K, V> m, Node<K, V> r) {
+    private void setChildren(Node x, Node l, Node m, Node r) {
         x.lChild = l;
         x.mChild = m;
         x.rChild = r;
@@ -203,10 +200,10 @@ public class BalancedTree<K extends Key,V extends Value> {
      *          Insert node z as a child of node x, split x if necessary and return the new node (null
      *          if the method didn't split).
      */
-    private Node<K,V> insertAndSplit(Node<K,V> x, Node<K,V> z) {
-        Node<K,V> l = x.lChild;
-        Node<K,V> m = x.mChild;
-        Node<K,V> r = x.rChild;
+    private Node insertAndSplit(Node x, Node z) {
+        Node l = x.lChild;
+        Node m = x.mChild;
+        Node r = x.rChild;
         /*Dont need to split Node x*/
         if (x.numOfChild == 2) {
             if (z.key.compareTo(l.key) < 0)
@@ -217,7 +214,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             return null;
         }
         /*If the method got to here, split is needed*/
-        Node<K,V> y = new Node<K,V>(null, null);
+        Node y = new Node(null, null);
         if (z.key.compareTo(l.key) < 0) {
             setChildren(x, z, l, null);
             setChildren(y, m, r, null);
@@ -239,7 +236,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      *            {@code:delete} method will delete the Node with the desire key if
      *            the tree has a Node with the same key, if not, nothing will happens.
      */
-    public void delete(K key) {
+    public void delete(Key key) {
         if (TreeNumOfLeaf == 0) //There are'nt any leaf to delete.
             return;
 
@@ -249,13 +246,13 @@ public class BalancedTree<K extends Key,V extends Value> {
             return;
         }
 
-        Node<K,V> x = auxSearch(this.root, key);
+        Node x = auxSearch(this.root, key);
         /*If the current key is not in the tree*/
         if (x == null)
             return;
 
         this.TreeNumOfLeaf--;
-        Node<K,V> y = x.parent;
+        Node y = x.parent;
         if (x == y.lChild)
             setChildren(y, y.mChild, y.rChild, null);
         else if (x == y.mChild)
@@ -280,13 +277,13 @@ public class BalancedTree<K extends Key,V extends Value> {
 
     /**
      * @param y : Node
-     *          {@code:borrow} method borrow a Node child from a sibling x of y or merge x and y.
+     *          {@code:borrowOrMerge} method borrow a Node child from a sibling x of y or merge x and y.
      *          return a reference to the parent of y (and x).
      */
-    private Node<K,V> borrowOrMerge(Node<K,V> y) {
-        Node<K,V> z = y.parent;
+    private Node borrowOrMerge(Node y) {
+        Node z = y.parent;
         if (y == z.lChild) {
-            Node<K,V> x = z.mChild;
+            Node x = z.mChild;
             if (x.rChild != null) {
                 setChildren(y, y.lChild, x.lChild, null);
                 setChildren(x, x.mChild, x.rChild, null);
@@ -297,7 +294,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             return z;
         }
         if (y == z.mChild) {
-            Node<K,V> x = z.lChild;
+            Node x = z.lChild;
             if (x.rChild != null) {
                 setChildren(y, x.rChild, y.lChild, null);
                 setChildren(x, x.lChild, x.mChild, null);
@@ -307,7 +304,7 @@ public class BalancedTree<K extends Key,V extends Value> {
             }
             return z;
         }
-        Node<K,V> x = z.mChild;
+        Node x = z.mChild;
         if (x.rChild != null) {
             setChildren(y, x.rChild, y.lChild, null);
             setChildren(x, x.lChild, x.mChild, null);
@@ -324,12 +321,12 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param key
      * @return value of node with key or null if the key does not exist in tree
      */
-    public Value search(K key) {
+    public Value search(Key key) {
         //key is larger than largest key in data structure
         if (key.compareTo(this.root.key) > 0) {
             return null;
         }
-        Node<K,V> x = auxSearch(this.root, key);
+        Node x = auxSearch(this.root, key);
         if (x == null)
             return null;
         return x.value.createCopy();
@@ -344,7 +341,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param key
      * @return value of node with key or null if the key does not exist in tree
      */
-    private Node<K,V> auxSearch(Node<K,V> currNode, K key) {
+    private Node auxSearch(Node currNode, Key key) {
         if (currNode.lChild == null) {
             if (currNode.key.compareTo(key) == 0)
                 return currNode;
@@ -367,7 +364,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param key
      * @return integral representing placement of node in linear ordering of all nodes
      */
-    public int rank(K key) {
+    public int rank(Key key) {
         //check if the key is larger than all the keys in the data structure
         if (key.compareTo(this.root.key) > 0)
             return 0;
@@ -385,7 +382,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param currRank
      * @return integral representing placement of node in linear ordering of all nodes
      */
-    private int auxRank(Node<K,V> currNode, K key, int currRank) {
+    private int auxRank(Node currNode, Key key, int currRank) {
         //if at leaf
         if (currNode.lChild == null) {
             if (currNode.key.compareTo(key) == 0) {
@@ -432,7 +429,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param index
      * @return key of node at index
      */
-    private Key auxSelect(Node<K,V> currNode, int index) {
+    private Key auxSelect(Node currNode, int index) {
         //if arrived at leaf return key
         if (currNode.lChild == null)
             return currNode.key.createCopy();
@@ -458,7 +455,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param key2
      * @return value representing sum or null if no keys are found in that interval
      */
-    public Value sumValuesInInterval(K key1, K key2) {
+    public Value sumValuesInInterval(Key key1, Key key2) {
         //check if key1 is smaller/equal to key2
         if (key1.compareTo(key2) > 0)
             return null;
@@ -479,7 +476,7 @@ public class BalancedTree<K extends Key,V extends Value> {
         if (key2.compareTo(successor1.key) < 0)
             return null;
 
-        V sum = (V)successor1.value.createCopy();
+        Value sum = successor1.value.createCopy();
 
         if (root.numOfChild == 1) //if the tree only has one node
             return sum;
@@ -502,7 +499,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param sum
      * @param upperBound
      */
-    private void ascendingAddition(Node<K,V> currNode, Node<K,V> prevNode, V sum, K upperBound) {
+    private void ascendingAddition(Node currNode, Node prevNode, Value sum, Key upperBound) {
         //check all of the subtrees to the right of the node that we ascended from, if they are in range
         if (currNode.lChild == prevNode) {//if we ascended from the left child
             if (currNode.mChild.key.compareTo(upperBound) <= 0) {
@@ -546,7 +543,7 @@ public class BalancedTree<K extends Key,V extends Value> {
      * @param sum
      * @param upperBound
      */
-    private void descendingAddition(Node<K,V> currNode, V sum, K upperBound) {
+    private void descendingAddition(Node currNode, Value sum, Key upperBound) {
         //if arrived at leaf, check if in range. If so add value. If not, stop descent
         if (currNode.lChild == null) {
             if (currNode.key.compareTo(upperBound) <= 0)
@@ -575,14 +572,14 @@ public class BalancedTree<K extends Key,V extends Value> {
         }
     }
 
-    private Node<K,V> findSuccessor(K key) {
+    private Node findSuccessor(Key key) {
         if (key.compareTo(this.root.key) > 0)
             return null;
         else
             return auxFindSuccessor(this.root, key);
     }
 
-    private Node<K,V> auxFindSuccessor(Node<K,V> currNode, K key) {
+    private Node auxFindSuccessor(Node currNode, Key key) {
         if (currNode.lChild == null) {
             return currNode;
         }
